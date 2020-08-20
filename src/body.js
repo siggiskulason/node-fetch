@@ -64,7 +64,8 @@ export default class Body {
 			body,
 			boundary,
 			disturbed: false,
-			error: null
+			error: null,
+			once: false
 		};
 		this.size = size;
 
@@ -79,7 +80,16 @@ export default class Body {
 	}
 
 	get body() {
-		return this[INTERNALS].body;
+		//SDS really ugly hack to get around issue in /usr/local/go/src/net/http/roundtrip_js.go
+		if (this.headers.get('content-type') =="application/json; charset=utf-8" && !this[INTERNALS].once)
+		{
+			this[INTERNALS].once = true;
+			return null;
+
+		}
+		else
+			return this[INTERNALS].body;
+
 	}
 
 	get bodyUsed() {
